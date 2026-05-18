@@ -1,0 +1,71 @@
+@using FUNewsManagementSystem.Data.Entities
+@model IReadOnlyList<SystemAccount>
+@{
+    ViewData["Title"] = "Account Management";
+}
+<h1>Account Management</h1>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-8"><input name="search" class="form-control" value="@ViewBag.Search" placeholder="Search account" /></div>
+    <div class="col-md-4"><button class="btn btn-primary">Search</button> <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#accountModal">Create</button></div>
+</form>
+<table class="table table-striped">
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var account in Model)
+    {
+        <tr>
+            <td>@account.AccountName</td><td>@account.AccountEmail</td><td>@account.AccountRole</td>
+            <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#accountModal" data-id="@account.AccountId" data-name="@account.AccountName" data-email="@account.AccountEmail" data-role="@((int)account.AccountRole)" data-password="@account.AccountPassword">Edit</button>
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal" data-id="@account.AccountId" data-name="@account.AccountName">Delete</button>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+<div class="modal fade" id="accountModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+        <form asp-action="SaveAccount" method="post">
+            <div class="modal-header"><h5 class="modal-title">Account</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" name="AccountId" id="AccountId" />
+                <div class="mb-3"><label class="form-label">Name</label><input name="AccountName" id="AccountName" class="form-control" required maxlength="100" /></div>
+                <div class="mb-3"><label class="form-label">Email</label><input name="AccountEmail" id="AccountEmail" type="email" class="form-control" required maxlength="70" /></div>
+                <div class="mb-3"><label class="form-label">Role</label><select name="AccountRole" id="AccountRole" class="form-select"><option value="1">Staff</option><option value="2">Lecturer</option></select></div>
+                <div class="mb-3"><label class="form-label">Password</label><input name="AccountPassword" id="AccountPassword" class="form-control" required maxlength="70" /></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary">Save</button></div>
+        </form>
+    </div></div>
+</div>
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+        <form asp-action="DeleteAccount" method="post">
+            <div class="modal-header"><h5 class="modal-title">Delete account</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" name="id" id="DeleteAccountId" />
+                <p class="mb-0">Are you sure you want to delete <strong id="DeleteAccountName"></strong>?</p>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger">Delete</button></div>
+        </form>
+    </div></div>
+</div>
+@section Scripts {
+<script>
+const accountModal = document.getElementById('accountModal');
+accountModal.addEventListener('show.bs.modal', event => {
+  const b = event.relatedTarget;
+  document.getElementById('AccountId').value = b?.dataset.id ?? '';
+  document.getElementById('AccountName').value = b?.dataset.name ?? '';
+  document.getElementById('AccountEmail').value = b?.dataset.email ?? '';
+  document.getElementById('AccountRole').value = b?.dataset.role ?? '1';
+  document.getElementById('AccountPassword').value = b?.dataset.password ?? '';
+});
+const deleteAccountModal = document.getElementById('deleteAccountModal');
+deleteAccountModal.addEventListener('show.bs.modal', event => {
+  const b = event.relatedTarget;
+  document.getElementById('DeleteAccountId').value = b?.dataset.id ?? '';
+  document.getElementById('DeleteAccountName').textContent = b?.dataset.name ?? 'this account';
+});
+</script>
+}

@@ -1,0 +1,19 @@
+@model IReadOnlyList<FUNewsManagementSystem.Services.Models.NewsArticleDisplay>
+@{
+    ViewData["Title"] = "News Report";
+}
+<h1>News Report</h1>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3"><input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control" /></div>
+    <div class="col-md-3"><input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control" /></div>
+    <div class="col-md-3"><button class="btn btn-primary">Create report</button></div>
+</form>
+<table class="table table-striped">
+<thead><tr><th>Date</th><th>Title</th><th>Category</th><th>Author</th><th>Status</th></tr></thead>
+<tbody>
+@foreach (var item in Model)
+{
+    <tr><td>@item.Article.CreatedDate.ToString("yyyy-MM-dd")</td><td>@item.Article.NewsTitle</td><td>@item.CategoryName</td><td>@item.AuthorName</td><td>@(item.Article.NewsStatus ? "Active" : "Inactive")</td></tr>
+}
+</tbody>
+</table>

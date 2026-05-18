@@ -1,0 +1,75 @@
+@using FUNewsManagementSystem.Data.Entities
+@model IReadOnlyList<Category>
+@{
+    ViewData["Title"] = "Category Management";
+}
+<h1>Category Management</h1>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-8"><input name="search" class="form-control" value="@ViewBag.Search" placeholder="Search category" /></div>
+    <div class="col-md-4"><button class="btn btn-primary">Search</button> <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#categoryModal">Create</button></div>
+</form>
+<table class="table table-striped">
+    <thead><tr><th>Name</th><th>Description</th><th>Parent</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var category in Model)
+    {
+        var parentName = Model.FirstOrDefault(c => c.CategoryId == category.ParentCategoryId)?.CategoryName ?? "-";
+        <tr>
+            <td>@category.CategoryName</td>
+            <td>@category.CategoryDescription</td>
+            <td>@parentName</td>
+            <td>@(category.IsActive ? "Active" : "Inactive")</td>
+            <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#categoryModal" data-id="@category.CategoryId" data-name="@category.CategoryName" data-description="@category.CategoryDescription" data-parent="@category.ParentCategoryId" data-active="@category.IsActive.ToString().ToLowerInvariant()">Edit</button>
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" data-id="@category.CategoryId" data-name="@category.CategoryName">Delete</button>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+        <form asp-action="Save" method="post">
+            <div class="modal-header"><h5 class="modal-title">Category</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" name="CategoryId" id="CategoryId" />
+                <div class="mb-3"><label class="form-label">Name</label><input name="CategoryName" id="CategoryName" class="form-control" required maxlength="100" /></div>
+                <div class="mb-3"><label class="form-label">Description</label><input name="CategoryDescription" id="CategoryDescription" class="form-control" required maxlength="250" /></div>
+                <div class="mb-3"><label class="form-label">Parent</label><select name="ParentCategoryId" id="ParentCategoryId" class="form-select"><option value="">None</option>@foreach (var category in Model) { <option value="@category.CategoryId">@category.CategoryName</option> }</select></div>
+                <div class="form-check"><input name="IsActive" id="IsActive" type="checkbox" value="true" class="form-check-input" checked /><input name="IsActive" type="hidden" value="false" /><label class="form-check-label">Active</label></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary">Save</button></div>
+        </form>
+    </div></div>
+</div>
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+        <form asp-action="Delete" method="post">
+            <div class="modal-header"><h5 class="modal-title">Delete category</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" name="id" id="DeleteCategoryId" />
+                <p class="mb-0">Are you sure you want to delete <strong id="DeleteCategoryName"></strong>?</p>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger">Delete</button></div>
+        </form>
+    </div></div>
+</div>
+@section Scripts {
+<script>
+const categoryModal = document.getElementById('categoryModal');
+categoryModal.addEventListener('show.bs.modal', event => {
+  const b = event.relatedTarget;
+  document.getElementById('CategoryId').value = b?.dataset.id ?? '';
+  document.getElementById('CategoryName').value = b?.dataset.name ?? '';
+  document.getElementById('CategoryDescription').value = b?.dataset.description ?? '';
+  document.getElementById('ParentCategoryId').value = b?.dataset.parent ?? '';
+  document.getElementById('IsActive').checked = b?.dataset.active !== 'false';
+});
+const deleteCategoryModal = document.getElementById('deleteCategoryModal');
+deleteCategoryModal.addEventListener('show.bs.modal', event => {
+  const b = event.relatedTarget;
+  document.getElementById('DeleteCategoryId').value = b?.dataset.id ?? '';
+  document.getElementById('DeleteCategoryName').textContent = b?.dataset.name ?? 'this category';
+});
+</script>
+}

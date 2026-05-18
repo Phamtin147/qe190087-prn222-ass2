@@ -1,0 +1,91 @@
+@using FUNewsManagementSystem.Data.Entities
+@model IReadOnlyList<FUNewsManagementSystem.Services.Models.NewsArticleDisplay>
+@{
+    ViewData["Title"] = ViewBag.IsHistory == true ? "My News History" : "News Management";
+    var categories = (IReadOnlyList<Category>)ViewBag.CategoryData;
+    var tags = (IReadOnlyList<Tag>)ViewBag.Tags;
+}
+<h1>@ViewData["Title"]</h1>
+<div id="realtimeAlert" class="alert alert-info d-none">News data changed in real time. Refresh to see the newest list.</div>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-8"><input name="search" class="form-control" value="@ViewBag.Search" placeholder="Search news" /></div>
+    <div class="col-md-4"><button class="btn btn-primary">Search</button> <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newsModal">Create</button></div>
+</form>
+<table class="table table-striped">
+<thead><tr><th>Date</th><th>Title</th><th>Category</th><th>Status</th><th>Tags</th><th></th></tr></thead>
+<tbody>
+@foreach (var item in Model)
+{
+    <tr>
+        <td>@item.Article.CreatedDate.ToString("yyyy-MM-dd")</td><td>@item.Article.NewsTitle</td><td>@item.CategoryName</td><td>@(item.Article.NewsStatus ? "Active" : "Inactive")</td><td>@string.Join(", ", item.Tags.Select(t => t.TagName))</td>
+        <td class="text-end">
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#newsModal" data-id="@item.Article.NewsArticleId" data-title="@item.Article.NewsTitle" data-headline="@item.Article.Headline" data-date="@item.Article.CreatedDate.ToString("yyyy-MM-dd")" data-category="@item.Article.CategoryId" data-content="@item.Article.NewsContent" data-source="@item.Article.NewsSource" data-status="@item.Article.NewsStatus.ToString().ToLowerInvariant()" data-tags="@string.Join(',', item.Article.TagIds)">Edit</button>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteNewsModal" data-id="@item.Article.NewsArticleId" data-title="@item.Article.NewsTitle">Delete</button>
+        </td>
+    </tr>
+}
+</tbody>
+</table>
+<div class="modal fade" id="newsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg"><div class="modal-content">
+        <form asp-action="Save" method="post">
+            <div class="modal-header"><h5 class="modal-title">News article</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" name="NewsArticleId" id="NewsArticleId" />
+                <div class="mb-3"><label class="form-label">Title</label><input name="NewsTitle" id="NewsTitle" class="form-control" maxlength="400" /></div>
+                <div class="mb-3"><label class="form-label">Headline</label><input name="Headline" id="Headline" class="form-control" required maxlength="150" /></div>
+                <div class="mb-3"><label class="form-label">Created date</label><input name="CreatedDate" id="CreatedDate" type="date" class="form-control" required /></div>
+                <div class="mb-3"><label class="form-label">Category</label><select name="CategoryId" id="CategoryId" class="form-select" required>@foreach (var category in categories) { <option value="@category.CategoryId">@category.CategoryName</option> }</select></div>
+                <div class="mb-3"><label class="form-label">Content</label><textarea name="NewsContent" id="NewsContent" class="form-control" rows="5" maxlength="4000"></textarea></div>
+                <div class="mb-3"><label class="form-label">Source</label><input name="NewsSource" id="NewsSource" class="form-control" maxlength="400" /></div>
+                <div class="form-check mb-3"><input name="NewsStatus" id="NewsStatus" type="checkbox" value="true" class="form-check-input" checked /><input name="NewsStatus" type="hidden" value="false" /><label class="form-check-label">Active</label></div>
+                <label class="form-label">Tags</label>
+                @foreach (var tag in tags)
+                {
+                    <div class="form-check"><input class="form-check-input tag-check" type="checkbox" name="TagIds" value="@tag.TagId" id="Tag_@tag.TagId" /><label class="form-check-label" for="Tag_@tag.TagId">@tag.TagName</label></div>
+                }
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary">Save</button></div>
+        </form>
+    </div></div>
+</div>
+<div class="modal fade" id="deleteNewsModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+        <form asp-action="Delete" method="post">
+            <div class="modal-header"><h5 class="modal-title">Delete news article</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" name="id" id="DeleteNewsId" />
+                <p class="mb-0">Are you sure you want to delete <strong id="DeleteNewsTitle"></strong>?</p>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger">Delete</button></div>
+        </form>
+    </div></div>
+</div>
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+<script>
+const newsModal = document.getElementById('newsModal');
+newsModal.addEventListener('show.bs.modal', event => {
+  const b = event.relatedTarget;
+  document.getElementById('NewsArticleId').value = b?.dataset.id ?? '';
+  document.getElementById('NewsTitle').value = b?.dataset.title ?? '';
+  document.getElementById('Headline').value = b?.dataset.headline ?? '';
+  document.getElementById('CreatedDate').value = b?.dataset.date ?? new Date().toISOString().substring(0, 10);
+  document.getElementById('CategoryId').value = b?.dataset.category ?? document.getElementById('CategoryId').options[0]?.value ?? '';
+  document.getElementById('NewsContent').value = b?.dataset.content ?? '';
+  document.getElementById('NewsSource').value = b?.dataset.source ?? '';
+  document.getElementById('NewsStatus').checked = b?.dataset.status !== 'false';
+  const selectedTags = (b?.dataset.tags ?? '').split(',').filter(Boolean);
+  document.querySelectorAll('.tag-check').forEach(c => c.checked = selectedTags.includes(c.value));
+});
+const deleteNewsModal = document.getElementById('deleteNewsModal');
+deleteNewsModal.addEventListener('show.bs.modal', event => {
+  const b = event.relatedTarget;
+  document.getElementById('DeleteNewsId').value = b?.dataset.id ?? '';
+  document.getElementById('DeleteNewsTitle').textContent = b?.dataset.title ?? 'this article';
+});
+const connection = new signalR.HubConnectionBuilder().withUrl('/newsHub').build();
+connection.on('newsChanged', () => document.getElementById('realtimeAlert').classList.remove('d-none'));
+connection.start();
+</script>
+}

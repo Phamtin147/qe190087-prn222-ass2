@@ -1,0 +1,25 @@
+@model IReadOnlyList<FUNewsManagementSystem.Services.Models.NewsArticleDisplay>
+@{
+    ViewData["Title"] = "Public News";
+}
+<h1>Public News</h1>
+<p class="text-muted">Active news articles can be viewed without authentication.</p>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-8"><input name="search" class="form-control" value="@ViewBag.Search" placeholder="Search active news" /></div>
+    <div class="col-md-4"><button class="btn btn-primary">Search</button></div>
+</form>
+<div class="row g-3">
+@foreach (var item in Model)
+{
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">@item.Article.NewsTitle</h5>
+                <h6 class="card-subtitle mb-2 text-muted">@item.CategoryName | @item.Article.CreatedDate.ToString("yyyy-MM-dd")</h6>
+                <p class="card-text">@item.Article.Headline</p>
+                <a asp-action="Details" asp-route-id="@item.Article.NewsArticleId" class="btn btn-outline-primary btn-sm">Read more</a>
+            </div>
+        </div>
+    </div>
+}
+</div>

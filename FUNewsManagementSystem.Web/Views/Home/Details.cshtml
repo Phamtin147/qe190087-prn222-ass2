@@ -1,0 +1,14 @@
+@model FUNewsManagementSystem.Services.Models.NewsArticleDisplay
+@{
+    ViewData["Title"] = Model.Article.NewsTitle;
+}
+<h1>@Model.Article.NewsTitle</h1>
+<p class="text-muted">@Model.CategoryName | @Model.AuthorName | @Model.Article.CreatedDate.ToString("yyyy-MM-dd")</p>
+<h4>@Model.Article.Headline</h4>
+<p>@Model.Article.NewsContent</p>
+@if (!string.IsNullOrWhiteSpace(Model.Article.NewsSource))
+{
+    <p><strong>Source:</strong> @Model.Article.NewsSource</p>
+}
+<p><strong>Tags:</strong> @string.Join(", ", Model.Tags.Select(t => t.TagName))</p>
+<a asp-action="Index" class="btn btn-secondary">Back</a>
