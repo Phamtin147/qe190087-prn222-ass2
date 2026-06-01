@@ -32,11 +32,11 @@ public sealed class NewsArticle
 
     public DateTime? ModifiedDate { get; set; }
 
-    public List<int> TagIds { get; set; } = [];
+    public List<int> TagIds { get; set; } = new();
 
     public Category? Category { get; set; }
 
     public SystemAccount? CreatedBy { get; set; }
 
-    public List<NewsArticleTag> NewsTags { get; set; } = [];
+    public List<NewsArticleTag> NewsTags { get; set; } = new();
 }

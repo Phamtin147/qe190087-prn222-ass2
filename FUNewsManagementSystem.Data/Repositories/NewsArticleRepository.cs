@@ -24,7 +24,7 @@ public sealed class NewsArticleRepository : IRepository<NewsArticle, string>
         var article = _context.NewsArticles.AsNoTracking().SingleOrDefault(n => n.NewsArticleId == id);
         if (article is not null)
         {
-            LoadTagIds([article]);
+            LoadTagIds(new List<NewsArticle> { article });
         }
 
         return article;
@@ -35,7 +35,7 @@ public sealed class NewsArticleRepository : IRepository<NewsArticle, string>
         entity.NewsArticleId = NextNewsArticleId();
         entity.CreatedDate = entity.CreatedDate == default ? DateTime.Today : entity.CreatedDate;
         var tagIds = entity.TagIds.ToList();
-        entity.TagIds = [];
+        entity.TagIds = new();
         _context.NewsArticles.Add(entity);
         _context.SaveChanges();
         ReplaceTags(entity.NewsArticleId, tagIds);

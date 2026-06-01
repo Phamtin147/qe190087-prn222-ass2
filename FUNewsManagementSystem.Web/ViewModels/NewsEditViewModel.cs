@@ -26,5 +26,5 @@ public sealed class NewsEditViewModel
 
     public bool NewsStatus { get; set; } = true;
 
-    public List<int> TagIds { get; set; } = [];
+    public List<int> TagIds { get; set; } = new();
 }

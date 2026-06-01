@@ -18,7 +18,7 @@ public sealed class Category
 
     public Category? ParentCategory { get; set; }
 
-    public List<Category> InverseParentCategory { get; set; } = [];
+    public List<Category> InverseParentCategory { get; set; } = new();
 
-    public List<NewsArticle> NewsArticles { get; set; } = [];
+    public List<NewsArticle> NewsArticles { get; set; } = new();
 }

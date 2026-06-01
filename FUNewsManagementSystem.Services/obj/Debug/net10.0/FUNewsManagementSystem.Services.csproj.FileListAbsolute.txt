@@ -28,3 +28,4 @@
 /home/amtia/Documents/prn222/PRN222/Assingnment2/FUNewsManagementSystem.Services/obj/Debug/net10.0/refint/FUNewsManagementSystem.Services.dll
 /home/amtia/Documents/prn222/PRN222/Assingnment2/FUNewsManagementSystem.Services/obj/Debug/net10.0/FUNewsManagementSystem.Services.pdb
 /home/amtia/Documents/prn222/PRN222/Assingnment2/FUNewsManagementSystem.Services/obj/Debug/net10.0/ref/FUNewsManagementSystem.Services.dll
+/home/amtia/Documents/prn222/PRN222/Assingnment2/FUNewsManagementSystem.Services/obj/Debug/net10.0/FUNewsManagementSystem.Services.sourcelink.json

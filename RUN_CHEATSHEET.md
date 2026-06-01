@@ -1,170 +1,120 @@
-# FUNewsManagementSystem Run Cheatsheet
+# FUNewsManagementSystem Assignment 02 Run Cheatsheet
 
-## 1. Yêu cầu trước khi chạy
+## 1. Requirements
 
-- .NET SDK đang dùng trong project: `net10.0`
-- MariaDB/MySQL chạy ở:
-  - host: `localhost`
-  - port: `3306`
-  - user: `root`
-  - password: `1`
+- .NET SDK for this project: `net10.0`
+- SQL Server running through Docker:
+  - Host: `localhost` / `127.0.0.1`
+  - Port: `14330`
+  - User: `sa`
+  - Password: `123`
 
-Kiểm tra MariaDB có đăng nhập được không:
-
-```bash
-mariadb -h localhost -P 3306 -u root -p1 -e "SHOW DATABASES;"
-```
-
-Nếu máy chỉ có command `mysql` thì dùng:
+Check SQL Server:
 
 ```bash
-mysql -h localhost -P 3306 -u root -p1 -e "SHOW DATABASES;"
+docker ps --filter name=sqlserver-lab
+tsql -H localhost -p 14330 -U sa -P '123'
 ```
 
-## 2. Tạo database và bảng MariaDB
+The Docker mapping is `14330 -> 1433`, so use port `14330` from the host and from DBeaver.
 
-Đứng ở thư mục assignment:
+## 2. Database
 
-```bash
-cd /home/amtia/Documents/prn222/PRN222/Assignments
-```
-
-Import script MariaDB:
-
-```bash
-mariadb -h localhost -P 3306 -u root -p1 < FUNewsManagement_mariadb.sql
-```
-
-Hoặc nếu dùng `mysql`:
-
-```bash
-mysql -h localhost -P 3306 -u root -p1 < FUNewsManagement_mariadb.sql
-```
-
-Script này sẽ tạo database `FUNewsManagement`, các bảng, khóa ngoại, và seed account/category/tag cơ bản.
-
-## 3. Kiểm tra connection string
-
-File cấu hình:
+The app is configured to use:
 
 ```text
-FUNewsManagementSystem.Web/appsettings.json
+FUNewsManagement_Assignment02
 ```
 
-Connection string hiện tại:
+On startup, EF Core creates the database schema with `Database.EnsureCreated()` and seeds demo accounts from `Program.cs`.
+
+Connection string in `FUNewsManagementSystem.Web/appsettings.json`:
 
 ```json
 "ConnectionStrings": {
-  "FUNewsManagement": "Server=localhost;Port=3306;Database=FUNewsManagement;User=root;Password=1;TreatTinyAsBoolean=true"
+  "FUNewsManagement": "Server=localhost,14330;Database=FUNewsManagement_Assignment02;User Id=sa;Password=123;TrustServerCertificate=True"
 }
 ```
 
-Nếu password/port MariaDB khác thì sửa ở đây.
+## 3. DBeaver
 
-## 4. Restore và build project
+Create an `MS SQL Server` connection:
+
+- Host: `127.0.0.1`
+- Port: `14330`
+- Database: `master` for first test, or `FUNewsManagement_Assignment02` after the app has started once
+- Username: `sa`
+- Password: `123`
+
+Driver properties:
+
+- `encrypt=false`
+- `trustServerCertificate=true`
+
+## 4. Restore and build
 
 ```bash
 dotnet restore FUNewsManagementSystem.slnx
 dotnet build FUNewsManagementSystem.slnx
 ```
 
-Build thành công mong đợi:
+If there is no solution file in this folder, build the web project directly:
+
+```bash
+dotnet build FUNewsManagementSystem.Web/FUNewsManagementSystem.Web.csproj
+```
+
+Expected result:
 
 ```text
 Build succeeded.
-0 Warning(s)
 0 Error(s)
 ```
 
-## 5. Chạy web app
+## 5. Run web app
 
 ```bash
 dotnet run --project FUNewsManagementSystem.Web/FUNewsManagementSystem.Web.csproj
 ```
 
-Nếu muốn ép port cụ thể:
+Or force a port:
 
 ```bash
-dotnet run --project FUNewsManagementSystem.Web/FUNewsManagementSystem.Web.csproj --urls http://localhost:5099
+dotnet run --project FUNewsManagementSystem.Web/FUNewsManagementSystem.Web.csproj --urls http://localhost:5098
 ```
 
-Sau đó mở trình duyệt:
+Open:
 
 ```text
-http://localhost:5099
+http://localhost:5098
 ```
 
-## 6. Account đăng nhập mẫu
+## 6. Demo accounts
 
-Admin account lấy từ `appsettings.json`:
+Admin account from `appsettings.json` and seed data:
 
 ```text
 Email: admin@FUNewsManagementSystem.org
 Password: @@abc123@@
 ```
 
-Staff account lấy từ database MariaDB:
+Seeded demo users:
 
 ```text
-Email: IsabellaDavid@FUNewsManagement.org
-Password: @1
+Email: staff@funews.org
+Password: 123
+
+Email: lecturer@funews.org
+Password: 123
 ```
 
-Lecturer account lấy từ database MariaDB:
+## 7. Quick test flow
 
-```text
-Email: EmmaWilliam@FUNewsManagement.org
-Password: @1
-```
-
-## 7. Luồng test nhanh
-
-1. Import DB bằng `FUNewsManagement_mariadb.sql`.
-2. Chạy `dotnet build FUNewsManagementSystem.slnx`.
-3. Chạy web app.
-4. Vào `/Account/Login`.
-5. Login bằng staff account:
-
-```text
-IsabellaDavid@FUNewsManagement.org / @1
-```
-
-Nếu login thành công, app sẽ redirect sang trang news/staff.
-
-## 8. Lỗi thường gặp
-
-### Không connect được DB
-
-Kiểm tra MariaDB service đang chạy chưa:
-
-```bash
-systemctl status mariadb
-```
-
-Kiểm tra lại user/password:
-
-```bash
-mariadb -h localhost -P 3306 -u root -p1
-```
-
-### Unknown database `FUNewsManagement`
-
-Bạn chưa import DB. Chạy lại:
-
-```bash
-mariadb -h localhost -P 3306 -u root -p1 < FUNewsManagement_mariadb.sql
-```
-
-### Port app bị trùng
-
-Chạy app bằng port khác:
-
-```bash
-dotnet run --project FUNewsManagementSystem.Web/FUNewsManagementSystem.Web.csproj --urls http://localhost:5100
-```
-
-Mở:
-
-```text
-http://localhost:5100
-```
+1. Start SQL Server Docker container.
+2. Build the project.
+3. Run the web app.
+4. Login as admin or staff.
+5. View news list.
+6. Use staff pages to create/edit news and categories.
+7. Confirm SignalR updates are available through `/newsHub`.
+8. Use admin pages to view accounts/report.

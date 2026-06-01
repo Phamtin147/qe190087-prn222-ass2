@@ -17,7 +17,7 @@ public sealed class SystemAccount
     [Required, StringLength(70)]
     public string AccountPassword { get; set; } = string.Empty;
 
-    public List<NewsArticle> NewsArticles { get; set; } = [];
+    public List<NewsArticle> NewsArticles { get; set; } = new();
 }
 
 public enum AccountRole

@@ -10,31 +10,31 @@ public sealed class NewsManagementStore
 
     private NewsManagementStore()
     {
-        Categories =
-        [
+        Categories = new List<Category>
+        {
             new Category { CategoryId = 1, CategoryName = "Academic news", CategoryDescription = "Research findings, faculty appointments and academic announcements.", ParentCategoryId = 1, IsActive = true },
             new Category { CategoryId = 2, CategoryName = "Student Affairs", CategoryDescription = "Student activities, events, clubs, organizations and sports.", ParentCategoryId = 2, IsActive = true },
             new Category { CategoryId = 3, CategoryName = "Campus Safety", CategoryDescription = "Incidents and safety measures implemented on campus.", ParentCategoryId = 3, IsActive = true },
             new Category { CategoryId = 4, CategoryName = "Alumni News", CategoryDescription = "Achievements and accomplishments of former students and alumni.", ParentCategoryId = 4, IsActive = true },
             new Category { CategoryId = 5, CategoryName = "Capstone Project News", CategoryDescription = "Reports created as part of academic or professional capstone projects.", ParentCategoryId = 5, IsActive = false }
-        ];
+        };
 
-        Accounts =
-        [
+        Accounts = new List<SystemAccount>
+        {
             new SystemAccount { AccountId = 1, AccountName = "Staff Writer", AccountEmail = "staff@funews.org", AccountPassword = "123", AccountRole = AccountRole.Staff },
             new SystemAccount { AccountId = 2, AccountName = "Lecturer Reader", AccountEmail = "lecturer@funews.org", AccountPassword = "123", AccountRole = AccountRole.Lecturer }
-        ];
+        };
 
-        Tags =
-        [
+        Tags = new List<Tag>
+        {
             new Tag { TagId = 1, TagName = "University", Note = "University wide news" },
             new Tag { TagId = 2, TagName = "Research", Note = "Academic research" },
             new Tag { TagId = 3, TagName = "Student", Note = "Student life" },
             new Tag { TagId = 4, TagName = "Safety", Note = "Campus safety" }
-        ];
+        };
 
-        NewsArticles =
-        [
+        NewsArticles = new List<NewsArticle>
+        {
             new NewsArticle
             {
                 NewsArticleId = "1",
@@ -46,7 +46,7 @@ public sealed class NewsManagementStore
                 CategoryId = 4,
                 NewsStatus = true,
                 CreatedById = 1,
-                TagIds = [1]
+                TagIds = new List<int> { 1 }
             },
             new NewsArticle
             {
@@ -59,9 +59,9 @@ public sealed class NewsManagementStore
                 CategoryId = 3,
                 NewsStatus = true,
                 CreatedById = 1,
-                TagIds = [4]
+                TagIds = new List<int> { 4 }
             }
-        ];
+        };
     }
 
     public List<Category> Categories { get; }

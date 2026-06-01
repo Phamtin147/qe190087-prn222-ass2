@@ -12,5 +12,5 @@ public sealed class Tag
     [StringLength(400)]
     public string? Note { get; set; }
 
-    public List<NewsArticleTag> NewsTags { get; set; } = [];
+    public List<NewsArticleTag> NewsTags { get; set; } = new();
 }
