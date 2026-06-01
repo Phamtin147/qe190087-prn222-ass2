@@ -9,9 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 builder.Services.AddDbContext<NewsManagementDbContext>(options =>
-    options.UseMySql(
-        builder.Configuration.GetConnectionString("FUNewsManagement"),
-        ServerVersion.Parse("10.4.32-mariadb")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("FUNewsManagement")));
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
